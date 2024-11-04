@@ -65,7 +65,7 @@ with open('reviews.json', 'w', encoding='utf-8') as f:
     f.write(json.dumps(data["reviews"]))
 ```
 
-### Getting just the available/unavailable dates
+### Getting available/unavailable, along with metadata
 ```Python
 import pyairbnb
 import json
