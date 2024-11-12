@@ -8,7 +8,10 @@ def test0():
     currency="MXN"
     check_in = "2024-11-04"
     check_out = "2024-11-10"
-    data = pyairbnb.get_details_from_id(room_id,currency,check_in,check_out,"")
+    data = pyairbnb.get_details(room_id=room_id, 
+                                currency=currency,
+                                check_in=check_in,
+                                check_out=check_out)
     with open('details.json', 'w', encoding='utf-8') as f:
         f.write(json.dumps(data))
 
@@ -19,7 +22,11 @@ def test1():
     check_in = "2024-11-02"
     check_out = "2024-11-10"
     proxy_url = pyairbnb.parse_proxy("[IP or domain]","[port]","[user name]","[password]")
-    data = pyairbnb.get_details_from_id(room_id,currency,check_in,check_out,proxy_url)
+    data = pyairbnb.get_details(room_id=room_id,
+                                currency=currency,
+                                check_in=check_in,
+                                check_out=check_out,
+                                proxy_url=proxy_url)
     with open('details.json', 'w', encoding='utf-8') as f:
         f.write(json.dumps(data))
 
@@ -28,7 +35,10 @@ def test11():
     currency="MXN"
     check_in = "2024-11-02"
     check_out = "2024-11-10"
-    data = pyairbnb.get_details_from_url(room_url,currency,check_in,check_out,"")
+    data = pyairbnb.get_details(room_url=room_url,
+                                currency=currency,
+                                check_in=check_in,
+                                check_out=check_out)
     with open('details.json', 'w', encoding='utf-8') as f:
         f.write(json.dumps(data))
 
