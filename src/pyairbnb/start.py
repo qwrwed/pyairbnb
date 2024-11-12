@@ -6,6 +6,7 @@ import pyairbnb.api as api
 import pyairbnb.search as search
 import pyairbnb.standardize as standardize
 import pyairbnb.calendar as calendar
+import pyairbnb.host_details as host_details
 from datetime import datetime
 from urllib.parse import urlparse, parse_qs
 
@@ -72,6 +73,9 @@ def get_details_from_url(room_url: str, currency: str, check_in: str, check_out:
         return data
     price_data = price.get(product_id,price_input["impression_id"],api_key,currency, cookies, check_in, check_out, proxy_url)
     data["price"] = price_data
+
+    host_id = data["host"]["id"]
+    data["host_details"] = host_details.get(host_id, api_key, proxy_url, cookies)
     return data
 
 def get_details_from_id(room_id: int, currency: str, check_in: str, check_out: str, proxy_url: str):
@@ -91,6 +95,9 @@ def get_details_from_id(room_id: int, currency: str, check_in: str, check_out: s
         return data
     price_data = price.get(product_id,price_input["impression_id"],api_key,currency, cookies, check_in, check_out, proxy_url)
     data["price"] = price_data
+    
+    host_id = data["host"]["id"]
+    data["host_details"] = host_details.get(host_id, api_key, proxy_url, cookies)
     return data
 
 
@@ -109,4 +116,7 @@ def get_details_from_id_and_domain(room_id: int, domain: str, currency: str, che
         return data
     price_data = price.get(product_id,price_input["impression_id"],api_key,currency, cookies, check_in, check_out, proxy_url)
     data["price"] = price_data
+    
+    host_id = data["host"]["id"]
+    data["host_details"] = host_details.get(host_id, api_key, proxy_url, cookies)
     return data
