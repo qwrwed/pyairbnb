@@ -3,7 +3,10 @@ import pyairbnb.parse as parse
 
 
 
-def get(room_url: str, proxy_url: str):
+def get(
+    room_url: str,
+    proxy_url: str | None = None,
+):
     headers = {
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
         "Accept-Language": "en",
@@ -19,9 +22,9 @@ def get(room_url: str, proxy_url: str):
         "Upgrade-Insecure-Requests": "1",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     }
-    proxies = {}
-    if proxy_url:
-        proxies = {"http": proxy_url, "https": proxy_url}
+
+    proxies = {"http": proxy_url, "https": proxy_url} if proxy_url else {}
+
     response = requests.get(room_url, headers=headers, proxies=proxies)
     response.raise_for_status()
     data_formatted, price_dependency_input=parse.parse_body_details_wrapper(response.text)

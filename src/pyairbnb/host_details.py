@@ -3,7 +3,12 @@ from bs4 import BeautifulSoup
 import json
 import base64
 
-def get(host_id: str, api_key: str, proxy_url: str, cookies):
+def get(
+    host_id: str,
+    api_key: str,
+    cookies,
+    proxy_url: str | None = None,
+):
     # Encode the host ID to match Airbnb's required format
     host_id = 'User:' + host_id
     user_id = base64.b64encode(host_id.encode()).decode('utf-8')

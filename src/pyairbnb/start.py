@@ -10,7 +10,11 @@ import pyairbnb.host_details as host_details
 from datetime import datetime
 from urllib.parse import urlparse
 
-def get_calendar(room_id: str, proxy_url: str = "" ,api_key: str = ""):
+def get_calendar(
+    room_id: str,
+    api_key: str = "",
+    proxy_url: str | None = None,
+):
     """
     Retrieves the calendar data for a specified room.
 
@@ -29,7 +33,11 @@ def get_calendar(room_id: str, proxy_url: str = "" ,api_key: str = ""):
     current_year = datetime.now().year
     return calendar.get(room_id, current_month, current_year, api_key, proxy_url)
 
-def get_reviews(product_id: str, proxy_url: str = "" ,api_key: str = ""):
+def get_reviews(
+    product_id: str,
+    api_key: str = "",
+    proxy_url: str | None = None,
+):
     """
     Retrieves review data for a specified product.
 
@@ -46,8 +54,15 @@ def get_reviews(product_id: str, proxy_url: str = "" ,api_key: str = ""):
 
     return reviews.get(product_id, api_key, proxy_url)
 
-def get_details(room_url: str = None, room_id: int = None, domain: str = "www.airbnb.com",
-                currency: str = None, check_in: str = None, check_out: str = None, proxy_url: str = None):
+def get_details(
+    room_url: str = None,
+    room_id: int = None,
+    domain: str = "www.airbnb.com",
+    currency: str = None,
+    check_in: str = None,
+    check_out: str = None,
+    proxy_url: str | None = None,
+):
     """
     Retrieves all details (calendar, reviews, price, and host details) for a specified room.
 
@@ -97,8 +112,17 @@ def get_details(room_url: str = None, room_id: int = None, domain: str = "www.ai
     
     return data
 
-def search_all(check_in: str, check_out: str, ne_lat: float, ne_long: float, sw_lat: float, sw_long: float,
-               zoom_value: int, currency: str, proxy_url: str):
+def search_all(
+    check_in: str,
+    check_out: str,
+    ne_lat: float,
+    ne_long: float,
+    sw_lat: float,
+    sw_long: float,
+    zoom_value: int,
+    currency: str,
+    proxy_url: str | None = None,
+):
     """
     Performs a paginated search for all rooms within specified geographic bounds.
 
@@ -131,8 +155,17 @@ def search_all(check_in: str, check_out: str, ne_lat: float, ne_long: float, sw_
         cursor = results_raw["paginationInfo"]["nextPageCursor"]
     return all_results
 
-def search_first_page(check_in: str, check_out: str, ne_lat: float, ne_long: float,
-                      sw_lat: float, sw_long: float, zoom_value: int, currency: str, proxy_url: str):
+def search_first_page(
+    check_in: str,
+    check_out: str,
+    ne_lat: float,
+    ne_long: float,
+    sw_lat: float,
+    sw_long: float,
+    zoom_value: int,
+    currency: str,
+    proxy_url: str | None = None,
+):
     """
     Searches the first page of results within specified geographic bounds.
 

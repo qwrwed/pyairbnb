@@ -13,7 +13,19 @@ treament = [
 
 
 
-def get(check_in:str, check_out:str, ne_lat:float, ne_long:float, sw_lat:float, sw_long:float, zoom_value:int, cursor:str, currency:str, api_key:str, proxy_url:str):
+def get(
+    check_in:str,
+    check_out:str,
+    ne_lat:float,
+    ne_long:float,
+    sw_lat:float,
+    sw_long:float,
+    zoom_value:int,
+    cursor:str,
+    currency:str,
+    api_key:str,
+    proxy_url:str | None = None,
+):
     check_in_date = datetime.strptime(check_in, "%Y-%m-%d")
     check_out_date = datetime.strptime(check_out, "%Y-%m-%d")
 
@@ -102,9 +114,9 @@ def get(check_in:str, check_out:str, ne_lat:float, ne_long:float, sw_lat:float, 
         "Upgrade-Insecure-Requests": "1",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     }
-    proxies = {}
-    if proxy_url:
-        proxies = {"http": proxy_url, "https": proxy_url}
+
+    proxies = {"http": proxy_url, "https": proxy_url} if proxy_url else {}
+
     response = requests.post(url_parsed, json = inputData, headers=headers, proxies=proxies,  impersonate="chrome110")
     data = response.json()
     to_return=utils.get_nested_value(data,"data.presentation.staysSearch.results",{})
