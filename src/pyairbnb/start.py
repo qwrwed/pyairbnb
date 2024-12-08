@@ -58,12 +58,12 @@ def get_reviews(
 
 
 def get_details(
-    room_url: str = None,
-    room_id: int = None,
+    room_url: str | None = None,
+    room_id: int | None = None,
     domain: str = "www.airbnb.com",
-    currency: str = None,
-    check_in: str = None,
-    check_out: str = None,
+    currency: str | None = None,
+    check_in: str | None = None,
+    check_out: str | None = None,
     proxy_url: str | None = None,
 ):
     """
