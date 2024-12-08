@@ -1,9 +1,11 @@
-from curl_cffi import requests
 import re
+
+from curl_cffi import requests
 
 ep = "https://www.airbnb.com"
 
 regx_api_key = re.compile(r'"api_config":{"key":".+?"')
+
 
 def get(
     proxy_url: str | None = None,
@@ -21,15 +23,15 @@ def get(
         "Sec-Fetch-Site": "none",
         "Sec-Fetch-User": "?1",
         "Upgrade-Insecure-Requests": "1",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     }
     proxies = {"http": proxy_url, "https": proxy_url} if proxy_url else {}
 
-    response = requests.get(ep, headers=headers, proxies=proxies, timeout=60)  
-    response.raise_for_status() 
+    response = requests.get(ep, headers=headers, proxies=proxies, timeout=60)
+    response.raise_for_status()
 
     body = response.text
     api_key = regx_api_key.search(body).group()
-    api_key = api_key.replace('"api_config":{"key":"', '')
+    api_key = api_key.replace('"api_config":{"key":"', "")
     api_key = api_key.replace('"', "")
     return api_key

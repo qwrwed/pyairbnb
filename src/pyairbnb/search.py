@@ -1,30 +1,31 @@
 from datetime import datetime
 from urllib.parse import urlencode
-import pyairbnb.utils as utils
+
 from curl_cffi import requests
 
+import pyairbnb.utils as utils
+
 treament = [
-	"feed_map_decouple_m11_treatment",
-	"stays_search_rehydration_treatment_desktop",
-	"stays_search_rehydration_treatment_moweb",
-	"selective_query_feed_map_homepage_desktop_treatment",
-	"selective_query_feed_map_homepage_moweb_treatment",
+    "feed_map_decouple_m11_treatment",
+    "stays_search_rehydration_treatment_desktop",
+    "stays_search_rehydration_treatment_moweb",
+    "selective_query_feed_map_homepage_desktop_treatment",
+    "selective_query_feed_map_homepage_moweb_treatment",
 ]
 
 
-
 def get(
-    check_in:str,
-    check_out:str,
-    ne_lat:float,
-    ne_long:float,
-    sw_lat:float,
-    sw_long:float,
-    zoom_value:int,
-    cursor:str,
-    currency:str,
-    api_key:str,
-    proxy_url:str | None = None,
+    check_in: str,
+    check_out: str,
+    ne_lat: float,
+    ne_long: float,
+    sw_lat: float,
+    sw_long: float,
+    zoom_value: int,
+    cursor: str,
+    currency: str,
+    api_key: str,
+    proxy_url: str | None = None,
 ):
     check_in_date = datetime.strptime(check_in, "%Y-%m-%d")
     check_out_date = datetime.strptime(check_out, "%Y-%m-%d")
@@ -40,60 +41,63 @@ def get(
         "currency": currency,
     }
     url_parsed = f"{base_url}?{urlencode(query_params)}"
-    rawParams=[
-        {"filterName":"cdnCacheSafe","filterValues":["false"]},
-        {"filterName":"channel","filterValues":["EXPLORE"]},
-        {"filterName":"checkin","filterValues":[check_in]},
-        {"filterName":"checkout","filterValues":[check_out]},
-        {"filterName":"datePickerType","filterValues":["calendar"]},
-        {"filterName":"flexibleTripLengths","filterValues":["one_week"]},
-        {"filterName":"itemsPerGrid","filterValues":["50"]},#if you read this, this is items returned number, this can bex exploited  ;)
-        {"filterName":"monthlyLength","filterValues":["3"]},
-        {"filterName":"monthlyStartDate","filterValues":["2024-02-01"]},
-        {"filterName":"neLat","filterValues":[str(ne_lat)]},
-        {"filterName":"neLng","filterValues":[str(ne_long)]},
-        {"filterName":"placeId","filterValues":["ChIJpTeBx6wjq5oROJeXkPCSSSo"]},
-        {"filterName":"priceFilterInputType","filterValues":["0"]},
-        {"filterName":"priceFilterNumNights","filterValues":[str(days)]},
-        {"filterName":"query","filterValues":["Galapagos Island, Ecuador"]},
-        {"filterName":"screenSize","filterValues":["large"]},
-        {"filterName":"refinementPaths","filterValues":["/homes"]},
-        {"filterName":"searchByMap","filterValues":["true"]},
-        {"filterName":"swLat","filterValues":[str(sw_lat)]},
-        {"filterName":"swLng","filterValues":[str(sw_long)]},
-        {"filterName":"tabId","filterValues":["home_tab"]},
-        {"filterName":"version","filterValues":["1.8.3"]},
-        {"filterName":"zoomLevel","filterValues":[str(zoom_value)]},
+    rawParams = [
+        {"filterName": "cdnCacheSafe", "filterValues": ["false"]},
+        {"filterName": "channel", "filterValues": ["EXPLORE"]},
+        {"filterName": "checkin", "filterValues": [check_in]},
+        {"filterName": "checkout", "filterValues": [check_out]},
+        {"filterName": "datePickerType", "filterValues": ["calendar"]},
+        {"filterName": "flexibleTripLengths", "filterValues": ["one_week"]},
+        {
+            "filterName": "itemsPerGrid",
+            "filterValues": ["50"],
+        },  # if you read this, this is items returned number, this can bex exploited  ;)
+        {"filterName": "monthlyLength", "filterValues": ["3"]},
+        {"filterName": "monthlyStartDate", "filterValues": ["2024-02-01"]},
+        {"filterName": "neLat", "filterValues": [str(ne_lat)]},
+        {"filterName": "neLng", "filterValues": [str(ne_long)]},
+        {"filterName": "placeId", "filterValues": ["ChIJpTeBx6wjq5oROJeXkPCSSSo"]},
+        {"filterName": "priceFilterInputType", "filterValues": ["0"]},
+        {"filterName": "priceFilterNumNights", "filterValues": [str(days)]},
+        {"filterName": "query", "filterValues": ["Galapagos Island, Ecuador"]},
+        {"filterName": "screenSize", "filterValues": ["large"]},
+        {"filterName": "refinementPaths", "filterValues": ["/homes"]},
+        {"filterName": "searchByMap", "filterValues": ["true"]},
+        {"filterName": "swLat", "filterValues": [str(sw_lat)]},
+        {"filterName": "swLng", "filterValues": [str(sw_long)]},
+        {"filterName": "tabId", "filterValues": ["home_tab"]},
+        {"filterName": "version", "filterValues": ["1.8.3"]},
+        {"filterName": "zoomLevel", "filterValues": [str(zoom_value)]},
     ]
     inputData = {
-        "operationName":"StaysSearch",
-        "extensions":{
+        "operationName": "StaysSearch",
+        "extensions": {
             "persistedQuery": {
                 "version": 1,
                 "sha256Hash": "d4d9503616dc72ab220ed8dcf17f166816dccb2593e7b4625c91c3fce3a3b3d6",
             },
         },
-        "variables":{
+        "variables": {
             "includeMapResults": True,
             "isLeanTreatment": False,
             "staysMapSearchRequestV2": {
-                "cursor":cursor,
-                "requestedPageType":"STAYS_SEARCH",
-                "metadataOnly":False,
-                "source":"structured_search_input_header",
-                "searchType":"user_map_move",
-                "treatmentFlags":treament,
-                "rawParams":rawParams,
+                "cursor": cursor,
+                "requestedPageType": "STAYS_SEARCH",
+                "metadataOnly": False,
+                "source": "structured_search_input_header",
+                "searchType": "user_map_move",
+                "treatmentFlags": treament,
+                "rawParams": rawParams,
             },
             "staysSearchRequest": {
-                "cursor":cursor,
+                "cursor": cursor,
                 "maxMapItems": 9999,
-                "requestedPageType":"STAYS_SEARCH",
-                "metadataOnly":False,
-                "source":"structured_search_input_header",
-                "searchType":"user_map_move",
-                "treatmentFlags":treament,
-                "rawParams":rawParams,
+                "requestedPageType": "STAYS_SEARCH",
+                "metadataOnly": False,
+                "source": "structured_search_input_header",
+                "searchType": "user_map_move",
+                "treatmentFlags": treament,
+                "rawParams": rawParams,
             },
         },
     }
@@ -112,12 +116,20 @@ def get(
         "Sec-Fetch-Site": "none",
         "Sec-Fetch-User": "?1",
         "Upgrade-Insecure-Requests": "1",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     }
 
     proxies = {"http": proxy_url, "https": proxy_url} if proxy_url else {}
 
-    response = requests.post(url_parsed, json = inputData, headers=headers, proxies=proxies,  impersonate="chrome110")
+    response = requests.post(
+        url_parsed,
+        json=inputData,
+        headers=headers,
+        proxies=proxies,
+        impersonate="chrome110",
+    )
     data = response.json()
-    to_return=utils.get_nested_value(data,"data.presentation.staysSearch.results",{})
+    to_return = utils.get_nested_value(
+        data, "data.presentation.staysSearch.results", {}
+    )
     return to_return

@@ -1,7 +1,9 @@
-from curl_cffi import requests
-from bs4 import BeautifulSoup
-import json
 import base64
+import json
+
+from bs4 import BeautifulSoup
+from curl_cffi import requests
+
 
 def get(
     host_id: str,
@@ -10,9 +12,9 @@ def get(
     proxy_url: str | None = None,
 ):
     # Encode the host ID to match Airbnb's required format
-    host_id = 'User:' + host_id
-    user_id = base64.b64encode(host_id.encode()).decode('utf-8')
-    
+    host_id = "User:" + host_id
+    user_id = base64.b64encode(host_id.encode()).decode("utf-8")
+
     # Set up headers
     headers = {
         "Accept": "application/json",
@@ -20,24 +22,28 @@ def get(
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "X-Airbnb-Api-Key": api_key,
     }
-    
+
     # Set up parameters
     params = {
-        'operationName': 'GetUserProfile',
-        'locale': 'en',
-        'currency': 'USD',
-        'variables': json.dumps({
-            "userId": user_id,
-            "isPassportStampsEnabled": True,
-            "mockIdentifier": None,
-            "fetchCombinedSportsAndInterests": True
-        }),
-        'extensions': json.dumps({
-            "persistedQuery": {
-                "version": 1,
-                "sha256Hash": "a56d8909f271740ccfef23dd6c34d098f194f4a6e7157f244814c5610b8ad76a"
+        "operationName": "GetUserProfile",
+        "locale": "en",
+        "currency": "USD",
+        "variables": json.dumps(
+            {
+                "userId": user_id,
+                "isPassportStampsEnabled": True,
+                "mockIdentifier": None,
+                "fetchCombinedSportsAndInterests": True,
             }
-        })
+        ),
+        "extensions": json.dumps(
+            {
+                "persistedQuery": {
+                    "version": 1,
+                    "sha256Hash": "a56d8909f271740ccfef23dd6c34d098f194f4a6e7157f244814c5610b8ad76a",
+                }
+            }
+        ),
     }
 
     # Set up proxy if available
@@ -45,17 +51,17 @@ def get(
 
     # Make the GET request
     response = requests.get(
-        'https://www.airbnb.com/api/v3/GetUserProfile/a56d8909f271740ccfef23dd6c34d098f194f4a6e7157f244814c5610b8ad76a',
+        "https://www.airbnb.com/api/v3/GetUserProfile/a56d8909f271740ccfef23dd6c34d098f194f4a6e7157f244814c5610b8ad76a",
         params=params,
         headers=headers,
         cookies=cookies,
-        proxies=proxies
+        proxies=proxies,
     )
 
     # Raise an exception if the request failed
     response.raise_for_status()
-    
+
     # Parse the response JSON
     data = response.json()
-    
+
     return data

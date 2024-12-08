@@ -1,14 +1,15 @@
-
-import pyairbnb.details as details
-import pyairbnb.reviews as reviews
-import pyairbnb.price as price
-import pyairbnb.api as api
-import pyairbnb.search as search
-import pyairbnb.standardize as standardize
-import pyairbnb.calendar as calendar
-import pyairbnb.host_details as host_details
 from datetime import datetime
 from urllib.parse import urlparse
+
+import pyairbnb.api as api
+import pyairbnb.calendar as calendar
+import pyairbnb.details as details
+import pyairbnb.host_details as host_details
+import pyairbnb.price as price
+import pyairbnb.reviews as reviews
+import pyairbnb.search as search
+import pyairbnb.standardize as standardize
+
 
 def get_calendar(
     room_id: str,
@@ -33,6 +34,7 @@ def get_calendar(
     current_year = datetime.now().year
     return calendar.get(room_id, current_month, current_year, api_key, proxy_url)
 
+
 def get_reviews(
     product_id: str,
     api_key: str = "",
@@ -53,6 +55,7 @@ def get_reviews(
         api_key = api.get(proxy_url)
 
     return reviews.get(product_id, api_key, proxy_url)
+
 
 def get_details(
     room_url: str = None,
@@ -80,37 +83,44 @@ def get_details(
     """
     if not room_url and room_id is None:
         raise ValueError("Either room_url or room_id must be provided.")
-    
+
     if not room_url:
         room_url = f"https://{domain}/rooms/{room_id}"
-    
+
     data, price_input, cookies = details.get(room_url, proxy_url)
     product_id = price_input["product_id"]
     api_key = price_input["api_key"]
-    
+
     # Extract room_id from URL if not provided
     if room_id is None:
         parsed_url = urlparse(room_url)
         path = parsed_url.path
         room_id = path.split("/")[-1]
-    
+
     # Get calendar and reviews data
     data["calendar"] = get_calendar(room_id, api_key, proxy_url)
     data["reviews"] = get_reviews(product_id, api_key, proxy_url)
-    
+
     # Get price data if check-in and check-out dates are provided
     if check_in and check_out:
         price_data = price.get(
-            product_id, price_input["impression_id"], api_key, currency, cookies,
-            check_in, check_out, proxy_url
+            product_id,
+            price_input["impression_id"],
+            api_key,
+            currency,
+            cookies,
+            check_in,
+            check_out,
+            proxy_url,
         )
         data["price"] = price_data
-    
+
     # Get host details
     host_id = data["host"]["id"]
     data["host_details"] = host_details.get(host_id, api_key, proxy_url, cookies)
-    
+
     return data
+
 
 def search_all(
     check_in: str,
@@ -145,15 +155,29 @@ def search_all(
     cursor = ""
     while True:
         results_raw = search.get(
-            check_in, check_out, ne_lat, ne_long, sw_lat, sw_long, zoom_value,
-            cursor, currency, api_key, proxy_url
+            check_in,
+            check_out,
+            ne_lat,
+            ne_long,
+            sw_lat,
+            sw_long,
+            zoom_value,
+            cursor,
+            currency,
+            api_key,
+            proxy_url,
         )
         results = standardize.from_search(results_raw.get("searchResults", []))
         all_results.extend(results)
-        if not results or "nextPageCursor" not in results_raw["paginationInfo"] or results_raw["paginationInfo"]["nextPageCursor"] is None:
+        if (
+            not results
+            or "nextPageCursor" not in results_raw["paginationInfo"]
+            or results_raw["paginationInfo"]["nextPageCursor"] is None
+        ):
             break
         cursor = results_raw["paginationInfo"]["nextPageCursor"]
     return all_results
+
 
 def search_first_page(
     check_in: str,
@@ -185,7 +209,16 @@ def search_first_page(
     """
     api_key = api.get(proxy_url)
     results_raw = search.get(
-        check_in, check_out, ne_lat, ne_long, sw_lat, sw_long, zoom_value,
-        "", currency, api_key, proxy_url
+        check_in,
+        check_out,
+        ne_lat,
+        ne_long,
+        sw_lat,
+        sw_long,
+        zoom_value,
+        "",
+        currency,
+        api_key,
+        proxy_url,
     )
     return standardize.from_search(results_raw)

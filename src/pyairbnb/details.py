@@ -1,6 +1,6 @@
 from curl_cffi import requests
-import pyairbnb.parse as parse
 
+import pyairbnb.parse as parse
 
 
 def get(
@@ -20,13 +20,15 @@ def get(
         "Sec-Fetch-Site": "none",
         "Sec-Fetch-User": "?1",
         "Upgrade-Insecure-Requests": "1",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     }
 
     proxies = {"http": proxy_url, "https": proxy_url} if proxy_url else {}
 
     response = requests.get(room_url, headers=headers, proxies=proxies)
     response.raise_for_status()
-    data_formatted, price_dependency_input=parse.parse_body_details_wrapper(response.text)
+    data_formatted, price_dependency_input = parse.parse_body_details_wrapper(
+        response.text
+    )
     cookies = response.cookies
     return data_formatted, price_dependency_input, cookies

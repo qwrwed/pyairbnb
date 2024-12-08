@@ -1,6 +1,8 @@
-import re
 import json
+import re
+
 from bs4 import BeautifulSoup
+
 import pyairbnb.standardize as standardize
 import pyairbnb.utils as utils
 
@@ -8,19 +10,20 @@ regxApiKey = re.compile(r'"key":".+?"')
 regexLanguage = re.compile(r'"language":".+?"')
 
 
-def parse_body_details_wrapper(body:str):
+def parse_body_details_wrapper(body: str):
     data_raw, language, api_key = parse_body_details(body)
-    data_formatted = standardize.from_details(data_raw) 
+    data_formatted = standardize.from_details(data_raw)
     data_formatted["language"] = language
-    price_dependency_input={
-        "product_id": data_raw['variables']['id'],
-        "impression_id": data_raw['variables']['pdpSectionsRequest']['p3ImpressionId'],
-        "api_key": api_key
+    price_dependency_input = {
+        "product_id": data_raw["variables"]["id"],
+        "impression_id": data_raw["variables"]["pdpSectionsRequest"]["p3ImpressionId"],
+        "api_key": api_key,
     }
     return data_formatted, price_dependency_input
 
-def parse_body_details(body:str):
-    soup = BeautifulSoup(body, 'html.parser')
+
+def parse_body_details(body: str):
+    soup = BeautifulSoup(body, "html.parser")
     data_deferred_state = soup.select("#data-deferred-state-0")[0].getText()
     html_data = utils.remove_space(data_deferred_state)
     language = regexLanguage.search(body).group()
