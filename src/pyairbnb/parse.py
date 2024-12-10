@@ -1,12 +1,12 @@
 import json
 import re
+from typing import Any
 
 from bs4 import BeautifulSoup
 
-import pyairbnb.standardize as standardize
-import pyairbnb.utils as utils
+from pyairbnb import standardize, utils
 
-regxApiKey = re.compile(r'"key":".+?"')
+regexApiKey = re.compile(r'"key":".+?"')
 regexLanguage = re.compile(r'"language":".+?"')
 
 
@@ -22,16 +22,25 @@ def parse_body_details_wrapper(body: str):
     return data_formatted, price_dependency_input
 
 
-def parse_body_details(body: str):
+def parse_body_details(body: str) -> tuple[Any, str, str]:
     soup = BeautifulSoup(body, "html.parser")
     data_deferred_state = soup.select("#data-deferred-state-0")[0].getText()
     html_data = utils.remove_space(data_deferred_state)
-    language = regexLanguage.search(body).group()
+
+    language_match = regexLanguage.search(body)
+    if not language_match:
+        raise AttributeError("could not extract language from response text")
+    language = language_match.group()
     language = language.replace('"language":"', "")
     language = language.replace('"', "")
-    api_key = regxApiKey.search(body).group()
+
+    api_key_match = regexApiKey.search(body)
+    if not api_key_match:
+        raise AttributeError("could not extract API key from response text")
+    api_key = api_key_match.group()
     api_key = api_key.replace('"key":"', "")
     api_key = api_key.replace('"', "")
+
     data = json.loads(html_data)
     details_data = data["niobeMinimalClientData"][0][1]
     return details_data, language, api_key

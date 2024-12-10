@@ -1,11 +1,12 @@
 import re
+from typing import Any
 
-import pyairbnb.utils as utils
+from pyairbnb import utils
 
 regex_number = re.compile(r"\d+")
 
 
-def from_search(results):
+def from_search(results) -> list:
     datas = []
     for result in results:
         type_name = utils.get_nested_value(result, "__typename", "")
@@ -50,13 +51,18 @@ def from_search(results):
                 utils.get_nested_value(badge, "loggingContext.badgeType", "")
             )
 
-        avgRatingLocalized = utils.get_nested_value(lt, "avgRatingLocalized", "")
-        splited = avgRatingLocalized.split(" ")
-        if len(splited) == 2:
-            rating = float(splited[0])
+        avg_rating_localized = utils.get_nested_value(lt, "avgRatingLocalized", "")
+        splitted = avg_rating_localized.split(" ")
+        if len(splitted) == 2:
+            rating = float(splitted[0])
             data["rating"]["value"] = rating
-            reviewCount = regex_number.search(splited[1]).group()
-            data["rating"]["reviewCount"] = reviewCount
+            review_count_match = regex_number.search(splitted[1])
+            if review_count_match is None:
+                raise AttributeError(
+                    "Could not find number pattern in splitted ratings"
+                )
+            review_count = review_count_match.group()
+            data["rating"]["reviewCount"] = review_count
         price_to_use = utils.get_nested_value(pr, "primaryLine.originalPrice", "")
         if price_to_use == "":
             price_to_use = utils.get_nested_value(pr, "primaryLine.price", "")
@@ -66,22 +72,22 @@ def from_search(results):
             data["price"]["unit"]["curency_symbol"] = currency
             data["price"]["unit"]["amount"] = amount
 
-        discountedPrice = utils.get_nested_value(pr, "primaryLine.discountedPrice", "")
-        if discountedPrice != "":
-            amount, _ = utils.parse_price_symbol(discountedPrice)
+        discounted_price = utils.get_nested_value(pr, "primaryLine.discountedPrice", "")
+        if discounted_price != "":
+            amount, _ = utils.parse_price_symbol(discounted_price)
             data["price"]["unit"]["discount"] = amount
 
-        splited = utils.get_nested_value(pr, "secondaryLine.price", "").split(" ")
+        splitted = utils.get_nested_value(pr, "secondaryLine.price", "").split(" ")
         price_to_use = ""
-        match len(splited):
+        match len(splitted):
             case 1:
-                if len(splited[0]) != 0:
-                    print("price error: ", splited)
+                if len(splitted[0]) != 0:
+                    print("price error: ", splitted)
             case 2:
-                price_to_use = splited[0]
+                price_to_use = splitted[0]
             case 3:
-                splited = splited[: len(splited) - 1]
-                price_to_use = "".join(splited)
+                splitted = splitted[: len(splitted) - 1]
+                price_to_use = "".join(splitted)
             case _:
                 continue
 
@@ -124,7 +130,7 @@ def from_search(results):
     return datas
 
 
-def from_details(meta):
+def from_details(meta) -> dict[str, Any]:
     ev = meta["data"]["presentation"]["stayProductDetailPage"]["sections"]["metadata"][
         "loggingContext"
     ]["eventDataLogging"]
@@ -174,8 +180,8 @@ def from_details(meta):
         meta, "data.presentation.stayProductDetailPage.sections.sbuiData"
     )
     for section in utils.get_nested_value(sd, "sectionConfiguration.root.sections", []):
-        typeName = utils.get_nested_value(section, "sectionData.__typename", "")
-        if typeName == "PdpHostOverviewDefaultSection":
+        type_name = utils.get_nested_value(section, "sectionData.__typename", "")
+        if type_name == "PdpHostOverviewDefaultSection":
             data["host"] = {
                 "id": utils.get_nested_value(
                     section,
@@ -184,7 +190,7 @@ def from_details(meta):
                 ),
                 "name": utils.get_nested_value(section, "sectionData.title", ""),
             }
-        elif typeName == "PdpOverviewV2Section":
+        elif type_name == "PdpOverviewV2Section":
             data["sub_description"]["title"] = utils.get_nested_value(
                 section, "sectionData.title", ""
             )
@@ -198,8 +204,8 @@ def from_details(meta):
     for section in utils.get_nested_value(
         meta, "data.presentation.stayProductDetailPage.sections.sections", []
     ):
-        typeName = utils.get_nested_value(section, "section.__typename", "")
-        match typeName:
+        type_name = utils.get_nested_value(section, "section.__typename", "")
+        match type_name:
             case "HostProfileSection":
                 data["host"]["id"] = utils.get_nested_value(
                     section, "section.hostAvatar.userID", ""
@@ -220,23 +226,23 @@ def from_details(meta):
                         {"id": cohost.get("id", ""), "name": cohost.get("name", "")}
                     )
             case "PhotoTourModalSection":
-                for mediaItem in utils.get_nested_value(
+                for media_item in utils.get_nested_value(
                     section, "section.mediaItems", []
                 ):
                     img = {
-                        "title": mediaItem.get("accessibilityLabel", ""),
-                        "url": mediaItem.get("baseUrl", ""),
+                        "title": media_item.get("accessibilityLabel", ""),
+                        "url": media_item.get("baseUrl", ""),
                     }
                     data["images"].append(img)
             case "PoliciesSection":
-                for houseRulesSection in utils.get_nested_value(
+                for house_rules_section in utils.get_nested_value(
                     section, "section.houseRulesSections", []
                 ):
                     house_rule = {
-                        "title": houseRulesSection.get("title", ""),
+                        "title": house_rules_section.get("title", ""),
                         "values": [],
                     }
-                    for item in houseRulesSection.get("items", []):
+                    for item in house_rules_section.get("items", []):
                         if item.get("title", "") == "Additional rules":
                             data["house_rules"]["aditional"] = utils.get_nested_value(
                                 item, "html.htmlText", ""
@@ -251,26 +257,26 @@ def from_details(meta):
 
                     data["house_rules"]["general"].append(house_rule)
             case "LocationSection":
-                for locationDetail in utils.get_nested_value(
+                for location_detail in utils.get_nested_value(
                     section, "section.seeAllLocationDetails", []
                 ):
-                    seeAllLocationDetail = {
-                        "title": locationDetail.get("title", ""),
+                    see_all_location_detail = {
+                        "title": location_detail.get("title", ""),
                         "content": utils.get_nested_value(
-                            locationDetail, "content.htmlText"
+                            location_detail, "content.htmlText"
                         ),
                     }
-                    data["location_descriptions"].append(seeAllLocationDetail)
+                    data["location_descriptions"].append(see_all_location_detail)
             case "PdpTitleSection":
                 data["title"] = section.get("title", "")
             case "PdpHighlightsSection":
-                for highlitingData in utils.get_nested_value(
+                for highliting_data in utils.get_nested_value(
                     section, "section.highlights", []
                 ):
                     highliting = {
-                        "title": highlitingData.get("title", ""),
-                        "subtitle": highlitingData.get("subtitle", ""),
-                        "icon": highlitingData.get("icon", ""),
+                        "title": highliting_data.get("title", ""),
+                        "subtitle": highliting_data.get("subtitle", ""),
+                        "icon": highliting_data.get("icon", ""),
                     }
                     data["highlights"].append(highliting)
             case "PdpDescriptionSection":
@@ -278,20 +284,20 @@ def from_details(meta):
                     section, "section.htmlDescription.htmlText", ""
                 )
             case "AmenitiesSection":
-                for amenityGroupRaw in utils.get_nested_value(
+                for amenity_group_raw in utils.get_nested_value(
                     section, "section.seeAllAmenitiesGroups", []
                 ):
-                    amenityGroup = {
-                        "title": amenityGroupRaw.get("title", ""),
+                    amenity_group = {
+                        "title": amenity_group_raw.get("title", ""),
                         "values": [],
                     }
-                    for amenityRaw in amenityGroupRaw.get("amenities", []):
+                    for amenity_raw in amenity_group_raw.get("amenities", []):
                         amenity = {
-                            "title": amenityRaw.get("title", ""),
-                            "subtitle": amenityRaw.get("subtitle", ""),
-                            "icon": amenityRaw.get("icon", ""),
-                            "available": amenityRaw.get("available", ""),
+                            "title": amenity_raw.get("title", ""),
+                            "subtitle": amenity_raw.get("subtitle", ""),
+                            "icon": amenity_raw.get("icon", ""),
+                            "available": amenity_raw.get("available", ""),
                         }
-                        amenityGroup["values"].append(amenity)
-                    data["amenities"].append(amenityGroup)
+                        amenity_group["values"].append(amenity)
+                    data["amenities"].append(amenity_group)
     return data
