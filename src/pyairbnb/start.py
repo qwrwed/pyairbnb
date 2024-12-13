@@ -37,7 +37,10 @@ def get_details(
     _room_url = room_url or f"https://{domain}/rooms/{room_id}"
     _room_id = room_id or urlparse(_room_url).path.split("/")[-1]
 
-    api = Api(proxy_url=proxy_url)
+    api = Api(
+        currency=currency,
+        proxy_url=proxy_url,
+    )
     data, price_input, cookies = api.get_details(_room_url)
     cookies = Cookies(cookies.get_dict(domain=reach(domain)))
 
@@ -52,7 +55,6 @@ def get_details(
         price_data = api.get_price(
             product_id,
             price_input["impression_id"],
-            currency,
             cookies,
             check_in,
             check_out,
@@ -94,7 +96,10 @@ def search_all(
     Returns:
         list: A list of all search results.
     """
-    api = Api(proxy_url=proxy_url)
+    api = Api(
+        currency=currency,
+        proxy_url=proxy_url,
+    )
 
     all_results = []
     cursor = ""
@@ -108,7 +113,6 @@ def search_all(
             sw_long,
             zoom_value,
             cursor,
-            currency,
         )
         results = standardize.from_search(results_raw.get("searchResults", []))
         all_results.extend(results)
@@ -150,7 +154,10 @@ def search_first_page(
     Returns:
         list: A list of search results from the first page.
     """
-    api = Api(proxy_url=proxy_url)
+    api = Api(
+        currency=currency,
+        proxy_url=proxy_url,
+    )
 
     results_raw = api.get_search(
         check_in,
@@ -160,8 +167,6 @@ def search_first_page(
         sw_lat,
         sw_long,
         zoom_value,
-        "",
-        currency,
     )
 
     return standardize.from_search(results_raw)

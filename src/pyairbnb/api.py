@@ -17,13 +17,17 @@ from pyairbnb.utils import (
     make_proxies,
 )
 
+DEFAULT_CURRENCY = "USD"
+
 
 class Api:
     def __init__(
         self,
+        currency: str = DEFAULT_CURRENCY,
         proxy_url: str | None = None,
         timeout_get: int = 60,
     ):
+        self.currency = currency
         self.proxies = make_proxies(proxy_url)
         self.timeout_get = timeout_get
 
@@ -139,7 +143,6 @@ class Api:
         room_id: str,
         month: int | None = None,
         year: int | None = None,
-        currency: str = "USD",
     ):
         month = month or datetime.now().month
         year = year or datetime.now().year
@@ -163,7 +166,7 @@ class Api:
         query = {
             "operationName": "PdpAvailabilityCalendar",
             "locale": "en",
-            "currency": currency,
+            "currency": self.currency,
             "variables": data_raw_variables,
             "extensions": data_raw_extension,
         }
@@ -225,7 +228,7 @@ class Api:
         query = {
             "operationName": "StaysPdpReviewsQuery",
             "locale": "en",
-            "currency": "USD",
+            "currency": self.currency,
             "variables": data_raw_variables,
             "extensions": data_raw_extension,
         }
@@ -253,7 +256,7 @@ class Api:
         params = {
             "operationName": "GetUserProfile",
             "locale": "en",
-            "currency": "USD",
+            "currency": self.currency,
             "variables": json.dumps(
                 {
                     "userId": user_id,
@@ -289,8 +292,7 @@ class Api:
         sw_lat: float,
         sw_long: float,
         zoom_value: int,
-        cursor: str,
-        currency: str,
+        cursor: str = "",
     ):
         treatment = [
             "feed_map_decouple_m11_treatment",
@@ -310,7 +312,7 @@ class Api:
         query_params = {
             "operationName": "StaysSearch",
             "locale": "en",
-            "currency": currency,
+            "currency": self.currency,
         }
         url_parsed = f"{base_url}?{urlencode(query_params)}"
         raw_params = [
@@ -401,7 +403,6 @@ class Api:
         self,
         product_id: str,
         impression_id: str,
-        currency: str,
         cookies: Cookies,
         check_in: str,
         check_out: str,
@@ -470,7 +471,7 @@ class Api:
         query = {
             "operationName": "StaysPdpSections",
             "locale": "en",
-            "currency": currency,
+            "currency": self.currency,
             "variables": data_raw_variables,
             "extensions": data_raw_extension,
         }
